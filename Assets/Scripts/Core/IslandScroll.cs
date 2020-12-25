@@ -56,7 +56,7 @@ public class IslandScroll : MonoBehaviour
             }
         }
 
-        if(!moveToIsland){
+        if(!moveToIsland && !started){
             if(swipeDelta.magnitude > 125){
                 float x = swipeDelta.x;
                 float y = swipeDelta.y;
@@ -70,78 +70,51 @@ public class IslandScroll : MonoBehaviour
                     }
                 }
                 Reset();
-            }else if(swipeDelta.magnitude > 15){
-
             }
         }
     }
+
+    public int speed = 5;
+    public float moveTimer;
+    public bool started = true;
 
     void FixedUpdate(){
+        if(started){
+            moveTimer += Time.deltaTime;
+            for(int i = 1; i < islands.Length; i++){
+                islands[i].transform.localScale -= new Vector3(0.008f, 0.008f, 0.008f);
+            }
+            if(moveTimer > 1.0f){
+                started = false;
+                moveTimer = 0;
+            }
+        }
         if(moveToIsland){
-            /*
-            if(Vector3.Distance(cam.transform.position, islands[curIsland].transform.position) > 0.3f){
-                moveToIslandTimer+=Time.deltaTime;
-                cam.transform.position = Vector3.MoveTowards(cam.transform.position, islands[curIsland].transform.position, Time.deltaTime * 10);
-                cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, islands[curIsland].transform.rotation, Time.deltaTime * 10);
+            moveTimer += Time.deltaTime;
+            if(moveTimer < 1.0f){
+                islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color -= new Color(0,0,0,0.007f);
+                islands[curIsland].GetComponentInChildren<SpriteRenderer>().color += new Color(0,0,0,0.007f);
+                islands[curIsland].transform.localScale += new Vector3(0.008f, 0.008f, 0.008f);
+                islands[prevIsland].transform.localScale -= new Vector3(0.008f, 0.008f, 0.008f);
+            }
+            if(cam.transform.position.x != islands[curIsland].transform.position.x){
+                cam.transform.position = 
+                    Vector2.MoveTowards(cam.transform.position, islands[curIsland].transform.position,
+                    Time.deltaTime * speed);
             }else{
                 moveToIsland = false;
-                moveToIslandTimer = 0;
                 menuClass.EnableBuying();
-            }
-            */
-
-
-                if(Vector3.Distance(center.position, islands[curIsland].transform.position) > 0.003f ||
-                Vector3.Distance(botLeft.position, islands[prevIsland].transform.position) > 0.003f){
-                    if(up){
-                        islands[prevIsland].transform.position = Vector3.MoveTowards(islands[prevIsland].transform.position, botLeft.position, Time.deltaTime * 15);
-                        islands[curIsland].transform.position = Vector3.MoveTowards(islands[curIsland].transform.position, center.position, Time.deltaTime * 15);
-                    }
-                }else if(Vector3.Distance(center.position, islands[curIsland].transform.position) > 0.003f ||
-                Vector3.Distance(topRight.position, islands[prevIsland].transform.position) > 0.003f){
-                    if(down){
-                        islands[prevIsland].transform.position = Vector3.MoveTowards(islands[prevIsland].transform.position, topRight.position, Time.deltaTime * 15);
-                        islands[curIsland].transform.position = Vector3.MoveTowards(islands[curIsland].transform.position, center.position, Time.deltaTime * 15);
-                    }
-                }else{
-                    //123
-                    moveToIsland = false;
-                    moveToIslandTimer = 0;
-                    down=false;
-                    up=false;
-                }
-
-        }else if(transformBeforeMoving){
-            moveToIslandTimer+=Time.deltaTime;
-            if(moveToIslandTimer < 1){
-                if(down){
-                    islands[prevIsland].transform.position = Vector3.MoveTowards(islands[prevIsland].transform.position, topRight.position, Time.deltaTime * swipeDelta.magnitude);
-                    islands[curIsland].transform.position = Vector3.MoveTowards(islands[curIsland].transform.position, center.position, Time.deltaTime * swipeDelta.magnitude);
-                }else if(up){
-                    islands[prevIsland].transform.position = Vector3.MoveTowards(islands[prevIsland].transform.position, botLeft.position, Time.deltaTime * swipeDelta.magnitude);
-                    islands[curIsland].transform.position = Vector3.MoveTowards(islands[curIsland].transform.position, center.position, Time.deltaTime * swipeDelta.magnitude);
-                }
-            }else{
-                moveToIslandTimer = 0;
-                transformBeforeMoving = false;
+                moveTimer = 0;
             }
         }
     }
 
-    public bool transformBeforeMoving;
     public int prevIsland;
-    public bool down;
-    public bool up;
-
-    public Transform topRight;
-    public Transform botLeft;
-    public Transform center;
 
     void SwipeUp(){
         if(curIsland < islands.Length-1){
             prevIsland = curIsland;
             curIsland++;
-            up = true;
             ChooseIsland();
         }
     }
@@ -150,7 +123,6 @@ public class IslandScroll : MonoBehaviour
         if(curIsland > 0){
             prevIsland = curIsland;
             curIsland--;
-            down = true;
             ChooseIsland();
         }
     }

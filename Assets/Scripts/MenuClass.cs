@@ -25,8 +25,8 @@ public class MenuClass : MonoBehaviour
     public void BuyNewIsland(Button but){
         curIsland = IslandScroll.curIsland;
         coins -= islandCosts[curIsland];
-        but.gameObject.SetActive(false);
-        //islandInfoObj.SetActive(true);
+        but.gameObject.transform.parent.gameObject.SetActive(false);
+        islandInfoObj.SetActive(true);
         boostButton.SetActive(true);
         islandInfo[0].text = islandNames[curIsland];
         islandInfo[1].text = "ЖИТЕЛЕЙ: " + islandPeopleAmount[curIsland];
@@ -113,10 +113,12 @@ public class MenuClass : MonoBehaviour
 
     public void PauseSound()
     {
-        count = false;
-        audioSource.Pause();
-        savedPauseButton.SetActive(false);
-        playButton.SetActive(true);
+        if(playButton.activeSelf == false){
+            count = false;
+            audioSource.Pause();
+            savedPauseButton.SetActive(false);
+            playButton.SetActive(true);
+        }
     }
 
     public void CloseMeditation(){
@@ -128,7 +130,7 @@ public class MenuClass : MonoBehaviour
 
     public void EnableBuying(){
         findNewIsland.SetActive(true);
-        findNewIsland.transform.GetChild(0).GetComponent<Text>().text = islandCosts[curIsland] + "";
+        findNewIsland.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
     }
 
     void Update(){
