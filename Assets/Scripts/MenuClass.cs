@@ -26,7 +26,8 @@ public class MenuClass : MonoBehaviour
         curIsland = IslandScroll.curIsland;
         coins -= islandCosts[curIsland];
         but.gameObject.SetActive(false);
-        islandInfoObj.SetActive(true);
+        //islandInfoObj.SetActive(true);
+        boostButton.SetActive(true);
         islandInfo[0].text = islandNames[curIsland];
         islandInfo[1].text = "ЖИТЕЛЕЙ: " + islandPeopleAmount[curIsland];
         timer30m = 0;
