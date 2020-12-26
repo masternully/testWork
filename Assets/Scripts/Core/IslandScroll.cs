@@ -22,6 +22,15 @@ public class IslandScroll : MonoBehaviour
     
     void Start(){
         startIslandPos = islands[0].transform.position;
+
+        for(int i = 0; i < islands.Length; i++){
+            localStartScales[i] = islands[i].transform.localScale.x;
+        }
+
+        for(int i = 0; i < islands.Length; i++){
+            islands[i].transform.localScale = new Vector3(localStartScales[i]*scaleMultiplier,localStartScales[i]*scaleMultiplier,localStartScales[i]*scaleMultiplier);
+        }
+        islands[0].transform.localScale = new Vector3(localStartScales[0],localStartScales[0],localStartScales[0]);
     }
 
     void Update()
@@ -77,13 +86,16 @@ public class IslandScroll : MonoBehaviour
     public int speed = 5;
     public float moveTimer;
     public bool started = true;
+    public float[] localStartScales = new float[6];
+    public float scaleMultiplier;
+    public float scaleMultiplierD;
+
+    public float startColor = 166;
+    public float endColor = 255;
 
     void FixedUpdate(){
         if(started){
             moveTimer += Time.deltaTime;
-            for(int i = 1; i < islands.Length; i++){
-                islands[i].transform.localScale -= new Vector3(0.008f, 0.008f, 0.008f);
-            }
             if(moveTimer > 1.0f){
                 started = false;
                 moveTimer = 0;
@@ -92,10 +104,19 @@ public class IslandScroll : MonoBehaviour
         if(moveToIsland){
             moveTimer += Time.deltaTime;
             if(moveTimer < 1.0f){
-                islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color -= new Color(0,0,0,0.007f);
-                islands[curIsland].GetComponentInChildren<SpriteRenderer>().color += new Color(0,0,0,0.007f);
-                islands[curIsland].transform.localScale += new Vector3(0.008f, 0.008f, 0.008f);
-                islands[prevIsland].transform.localScale -= new Vector3(0.008f, 0.008f, 0.008f);
+                float colorUp =  Mathf.MoveTowards(startColor, endColor, Time.deltaTime);
+                float colorDown =  Mathf.MoveTowards(endColor, startColor, Time.deltaTime);
+                //islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255,255,255,colorDown);
+                //islands[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255,255,255,colorUp);
+
+                float islandScale =  Mathf.MoveTowards(islands[curIsland].transform.localScale.x, localStartScales[curIsland]*scaleMultiplierD, Time.deltaTime);
+                float islandScaleD =  Mathf.MoveTowards(islands[prevIsland].transform.localScale.x, localStartScales[prevIsland]*scaleMultiplier, Time.deltaTime);
+
+                islands[curIsland].transform.localScale = new Vector3(islandScale, islandScale, islandScale);
+                islands[prevIsland].transform.localScale = new Vector3(islandScaleD, islandScaleD, islandScaleD);
+
+                //islands[curIsland].transform.localScale += new Vector3(islandScale, islandScale, islandScale);
+                //islands[prevIsland].transform.localScale -= new Vector3(islandScaleD, islandScaleD, islandScaleD);
             }
             if(cam.transform.position.x != islands[curIsland].transform.position.x){
                 cam.transform.position = 
@@ -109,7 +130,7 @@ public class IslandScroll : MonoBehaviour
         }
     }
 
-    public int prevIsland;
+    public static int prevIsland;
 
     void SwipeUp(){
         if(curIsland < islands.Length-1){
@@ -129,6 +150,8 @@ public class IslandScroll : MonoBehaviour
 
     void ChooseIsland(){
         moveToIsland = true;
+        islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,166f/255f);
+        islands[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,255f/255f);
     }
 
     void Reset(){

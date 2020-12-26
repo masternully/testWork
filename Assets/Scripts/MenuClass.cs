@@ -8,7 +8,9 @@ public class MenuClass : MonoBehaviour
     public string[] islandNames;
     public int[] islandPeopleAmount;
     public int[] islandCosts;
+
     public int coins;
+
     public bool[] availableIslands;
     public Text[] islandInfo;
     public GameObject islandInfoObj;
@@ -19,8 +21,6 @@ public class MenuClass : MonoBehaviour
     void Start(){
         availableIslands = new bool[islandCosts.Length];
     }
-
-
 
     public void BuyNewIsland(Button but){
         curIsland = IslandScroll.curIsland;
@@ -146,6 +146,7 @@ public class MenuClass : MonoBehaviour
                 playButton.SetActive(true);
                 meditationMenu.SetActive(false);
                 startMeditation.SetActive(false);
+                IslandScroll.prevIsland = curIsland;
                 curIsland++;
                 IslandScroll.curIsland++;
                 IslandScroll.moveToIsland = true;
