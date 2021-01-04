@@ -148,7 +148,7 @@ public class IslandScroll : MonoBehaviour
         }
     }
 
-    void ChooseIsland(){
+    public void ChooseIsland(){
         moveToIsland = true;
         islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,166f/255f);
         islands[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,255f/255f);
