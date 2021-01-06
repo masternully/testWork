@@ -113,8 +113,8 @@ public int ActiveIslandNumber=1;
                 float islandsObjcale =  Mathf.MoveTowards(islandsObj[curIsland].transform.localScale.x, localStartScales[curIsland]*scaleMultiplierD, Time.deltaTime);
                 float islandsObjcaleD =  Mathf.MoveTowards(islandsObj[prevIsland].transform.localScale.x, localStartScales[prevIsland]*scaleMultiplier, Time.deltaTime);
 
-                islandsObj[curIsland].transform.localScale = new Vector3(islandsObjcale, islandsObjcale, islandsObjcale);
-                islandsObj[prevIsland].transform.localScale = new Vector3(islandsObjcaleD, islandsObjcaleD, islandsObjcaleD);
+                islandsObj[curIsland].transform.localScale = new Vector3(0.6097f, 0.6097f, 0.6097f);
+                islandsObj[prevIsland].transform.localScale = new Vector3(0.45f, 0.45f, 0.45f);
 
                 //islandsObj[curIsland].transform.localScale += new Vector3(islandsObjcale, islandsObjcale, islandsObjcale);
                 //islandsObj[prevIsland].transform.localScale -= new Vector3(islandsObjcaleD, islandsObjcaleD, islandsObjcaleD);
