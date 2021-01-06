@@ -6,31 +6,40 @@ using UnityEngine.UI;
 public class IslandScroll : MonoBehaviour
 {
     public MenuClass menuClass;
-    public static int curIsland;
-    public GameObject[] islands;
-    public GameObject[] players;
+
+    public GameObject[] islandsObj;
+    public GameObject[] playersObj;
     public GameObject cam;
-
+    public static int curIsland;
     public static bool tap, swipeUp, swipeDown;
-    private bool isDraging = false;
-    private Vector2 startTouch, swipeDelta;
-
     public static bool moveToIsland;
+    private bool isDraging = false;
+    public bool started = true;
+    public int speed = 5;
+    public float moveTimer;
+   
+    public float[] localStartScales = new float[6];
+    public float scaleMultiplier;
+    public float scaleMultiplierD;
+public int ActiveIslandNumber=1;
+    public float startColor = 166;
+    public float endColor = 255;
+    
     public float moveToIslandTimer;
-
+    private Vector2 startTouch, swipeDelta;
     Vector3 startIslandPos;
     
     void Start(){
-        startIslandPos = islands[0].transform.position;
+        startIslandPos = islandsObj[0].transform.position;
 
-        for(int i = 0; i < islands.Length; i++){
-            localStartScales[i] = islands[i].transform.localScale.x;
+        for(int i = 0; i < ActiveIslandNumber; i++){
+            localStartScales[i] = islandsObj[i].transform.localScale.x;
         }
 
-        for(int i = 0; i < islands.Length; i++){
-            islands[i].transform.localScale = new Vector3(localStartScales[i]*scaleMultiplier,localStartScales[i]*scaleMultiplier,localStartScales[i]*scaleMultiplier);
+        for(int i = 0; i < ActiveIslandNumber; i++){
+            islandsObj[i].transform.localScale = new Vector3(localStartScales[i]*scaleMultiplier,localStartScales[i]*scaleMultiplier,localStartScales[i]*scaleMultiplier);
         }
-        islands[0].transform.localScale = new Vector3(localStartScales[0],localStartScales[0],localStartScales[0]);
+        islandsObj[0].transform.localScale = new Vector3(localStartScales[0],localStartScales[0],localStartScales[0]);
     }
 
     void Update()
@@ -83,15 +92,7 @@ public class IslandScroll : MonoBehaviour
         }
     }
 
-    public int speed = 5;
-    public float moveTimer;
-    public bool started = true;
-    public float[] localStartScales = new float[6];
-    public float scaleMultiplier;
-    public float scaleMultiplierD;
-
-    public float startColor = 166;
-    public float endColor = 255;
+ 
 
     void FixedUpdate(){
         if(started){
@@ -106,21 +107,21 @@ public class IslandScroll : MonoBehaviour
             if(moveTimer < 1.0f){
                 float colorUp =  Mathf.MoveTowards(startColor, endColor, Time.deltaTime);
                 float colorDown =  Mathf.MoveTowards(endColor, startColor, Time.deltaTime);
-                //islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255,255,255,colorDown);
-                //islands[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255,255,255,colorUp);
+                //islandsObj[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255,255,255,colorDown);
+                //islandsObj[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255,255,255,colorUp);
 
-                float islandScale =  Mathf.MoveTowards(islands[curIsland].transform.localScale.x, localStartScales[curIsland]*scaleMultiplierD, Time.deltaTime);
-                float islandScaleD =  Mathf.MoveTowards(islands[prevIsland].transform.localScale.x, localStartScales[prevIsland]*scaleMultiplier, Time.deltaTime);
+                float islandsObjcale =  Mathf.MoveTowards(islandsObj[curIsland].transform.localScale.x, localStartScales[curIsland]*scaleMultiplierD, Time.deltaTime);
+                float islandsObjcaleD =  Mathf.MoveTowards(islandsObj[prevIsland].transform.localScale.x, localStartScales[prevIsland]*scaleMultiplier, Time.deltaTime);
 
-                islands[curIsland].transform.localScale = new Vector3(islandScale, islandScale, islandScale);
-                islands[prevIsland].transform.localScale = new Vector3(islandScaleD, islandScaleD, islandScaleD);
+                islandsObj[curIsland].transform.localScale = new Vector3(islandsObjcale, islandsObjcale, islandsObjcale);
+                islandsObj[prevIsland].transform.localScale = new Vector3(islandsObjcaleD, islandsObjcaleD, islandsObjcaleD);
 
-                //islands[curIsland].transform.localScale += new Vector3(islandScale, islandScale, islandScale);
-                //islands[prevIsland].transform.localScale -= new Vector3(islandScaleD, islandScaleD, islandScaleD);
+                //islandsObj[curIsland].transform.localScale += new Vector3(islandsObjcale, islandsObjcale, islandsObjcale);
+                //islandsObj[prevIsland].transform.localScale -= new Vector3(islandsObjcaleD, islandsObjcaleD, islandsObjcaleD);
             }
-            if(cam.transform.position.x != islands[curIsland].transform.position.x){
+            if(cam.transform.position.x != islandsObj[curIsland].transform.position.x){
                 cam.transform.position = 
-                    Vector2.MoveTowards(cam.transform.position, islands[curIsland].transform.position,
+                    Vector2.MoveTowards(cam.transform.position, islandsObj[curIsland].transform.position,
                     Time.deltaTime * speed);
             }else{
                 moveToIsland = false;
@@ -133,7 +134,8 @@ public class IslandScroll : MonoBehaviour
     public static int prevIsland;
 
     void SwipeUp(){
-        if(curIsland < islands.Length-1){
+        Debug.Log(islandsObj.Length);
+        if(curIsland < ActiveIslandNumber-1){
             prevIsland = curIsland;
             curIsland++;
             ChooseIsland();
@@ -150,10 +152,15 @@ public class IslandScroll : MonoBehaviour
 
     public void ChooseIsland(){
         moveToIsland = true;
-        islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,166f/255f);
-        islands[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,255f/255f);
+        islandsObj[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,166f/255f);
+        
+        islandsObj[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,255f/255f);
     }
-
+public void ActiveIsland()
+{
+    islandsObj[curIsland].SetActive(true);
+    ActiveIslandNumber++;
+}
     void Reset(){
         startTouch = swipeDelta = Vector2.zero;
         isDraging = false;

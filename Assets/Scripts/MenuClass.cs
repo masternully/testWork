@@ -12,21 +12,46 @@ public class AudioClass {
 
 public class MenuClass : MonoBehaviour
 {
-    public IslandScroll islandScroll;
-    public AudioClass[] audioClasses;
+    public IslandScroll islandScroll; 
+    public IslandClass[] islandsObj;
+    public AudioClass[] audioClasses; 
+    public AudioSource audioSource;    
+    public AudioClip curTrack;
     public string[] islandNames;
     public int[] islandPeopleAmount;
     public int[] islandCosts;
-
-    public int coins;
-
-    public bool[] availableIslands;
-    public Text[] islandInfo;
-    public GameObject islandInfoObj;
+    public int coins;  
+    private int medNum;
     private int curIsland;
-    private float timer30m = -1;
+    private float timer30m = -1;   
+    public float counting;
+    public bool[] availableIslands; 
+    public bool wereStarted; 
+    public bool count;
+    public Text[] islandInfo;  
+    public Text showLeftTimeText;   
+    public Text fullTimeText;
+    public GameObject islandInfoObj;
+    public GameObject takeWithBoostObj;  
+    public GameObject prizeObj;
+    public GameObject boostButtonObj;
+    public GameObject pauseButtonObj;
+    public GameObject playButtonObj;
+    public GameObject savedPauseButtonObj;
+    public GameObject acceptPrizeObj;
+    public GameObject startMeditationObj;
+    public GameObject findNewIslandObj;
+    public GameObject downloadingObj;   
+    public GameObject meditationMenuObj;   
+    public GameObject courseMenuObj;
+    public GameObject playMenuObj;
     public Image loading;
-
+   
+  
+ 
+   
+  
+  
     void Start(){
         availableIslands = new bool[islandCosts.Length];
     }
@@ -36,65 +61,58 @@ public class MenuClass : MonoBehaviour
         coins -= islandCosts[curIsland];
         but.gameObject.transform.parent.gameObject.SetActive(false);
         islandInfoObj.SetActive(true);
-        boostButton.SetActive(true);
+        boostButtonObj.SetActive(true);
         islandInfo[0].text = islandNames[curIsland];
         islandInfo[1].text = "ЖИТЕЛЕЙ: " + islandPeopleAmount[curIsland];
         timer30m = 0;
     }
 
 
-    public GameObject takeWithBoost;
+
     public void SpeedUpTimer(){
-        takeWithBoost.SetActive(true);
+        takeWithBoostObj.SetActive(true);
     }
 
     public void CloseBooster(){
-        takeWithBoost.SetActive(false);
+        takeWithBoostObj.SetActive(false);
     }
+  
 
-    public GameObject prize;
-    public GameObject boostButton;
-
-    public GameObject acceptPrize;
-    public GameObject startMeditation;
+    
     public void TakeBoost(){
         availableIslands[IslandScroll.curIsland] = true;
-        takeWithBoost.SetActive(false);
+        takeWithBoostObj.SetActive(false);
         // Минус затраченные очки
+        Debug.Log("+++");
     }
 
     public void TakePrize(){
-        acceptPrize.SetActive(true);
+        acceptPrizeObj.SetActive(true);
         islandInfoObj.SetActive(false);
     }
 
     public void GetPrize(){
-        acceptPrize.SetActive(false);
-        boostButton.SetActive(true);
-        prize.SetActive(false);
+        acceptPrizeObj.SetActive(false);
+        boostButtonObj.SetActive(true);
+        prizeObj.SetActive(false);
         islandInfoObj.SetActive(false);
-        startMeditation.SetActive(true);
+        startMeditationObj.SetActive(true);
         coins+=100;
+        Debug.Log("++");
         // И прописываю значения нашим валютам
     }
 
-    public GameObject meditationMenu;
+ 
     public void GoToMeditation(){
         //startMeditation.SetActive(false);
-        meditationMenu.SetActive(true);
+        meditationMenuObj.SetActive(true);
+       
     }
 
-    public IslandClass[] islands;
-    public AudioSource audioSource;
+   
 
-    public GameObject pauseButton;
-    public GameObject playButton;
-    public GameObject savedPauseButton;
-    public bool wereStarted;
-    public float counting;
-    public bool count;
-    public Text showLeftTime;
-    private int medNum;
+ 
+  
 
     IEnumerator  DownloadTrack(string SoundURL){
         UnityWebRequest wwwSound = UnityWebRequestMultimedia.GetAudioClip(SoundURL, AudioType.MPEG);
@@ -107,7 +125,7 @@ public class MenuClass : MonoBehaviour
         {
             Debug.Log ("Sound Received at: " + SoundURL);
             curTrack = ((DownloadHandlerAudioClip)wwwSound.downloadHandler).audioClip;
-            downloading.SetActive(false);
+            downloadingObj.SetActive(false);
             audioSource.PlayOneShot(curTrack);
             count = true;
 
@@ -126,32 +144,31 @@ public class MenuClass : MonoBehaviour
         }
     }
 
-    public AudioClip curTrack;
 
-    public GameObject courseMenu;
 
+ 
 
     public void OpenCourseMenu(){
-        courseMenu.SetActive(true);
-        meditationMenu.SetActive(false);
+        courseMenuObj.SetActive(true);
+        meditationMenuObj.SetActive(false);
     }
 
-    public GameObject playMenu;
+    
 
     public void PlayTrack(Button but){
         medNum = int.Parse(but.name + "");
         if(!wereStarted){
-            downloading.SetActive(true);
+            downloadingObj.SetActive(true);
             wereStarted = true;
-            courseMenu.SetActive(false);
-            playMenu.SetActive(true);
-            playButton = but.gameObject;
+            courseMenuObj.SetActive(false);
+            playMenuObj.SetActive(true);
+            playButtonObj = but.gameObject;
 
-            Button butPause = Instantiate(pauseButton).GetComponent<Button>();
-            savedPauseButton = butPause.gameObject;
-            butPause.gameObject.transform.SetParent(playButton.transform.parent);
-            butPause.gameObject.transform.position = playButton.transform.position;
-            butPause.gameObject.transform.localScale = playButton.transform.localScale;
+            Button butPause = Instantiate(pauseButtonObj).GetComponent<Button>();
+            savedPauseButtonObj = butPause.gameObject;
+            butPause.gameObject.transform.SetParent(playButtonObj.transform.parent);
+            butPause.gameObject.transform.position = playButtonObj.transform.position;
+            butPause.gameObject.transform.localScale = playButtonObj.transform.localScale;
             butPause.onClick.AddListener(() => PauseSound());
 
             StartCoroutine(DownloadTrack(audioClasses[medNum].url));
@@ -161,37 +178,36 @@ public class MenuClass : MonoBehaviour
         }else{
             audioSource.UnPause();
             count = true;
-            savedPauseButton.SetActive(true);
-            playButton.SetActive(false);
+            savedPauseButtonObj.SetActive(true);
+            playButtonObj.SetActive(false);
         }
     }
 
     public void PauseSound()
     {
-        if(playButton.activeSelf == false){
+        if(playButtonObj.activeSelf == false){
             count = false;
             audioSource.Pause();
-            savedPauseButton.SetActive(false);
-            playButton.SetActive(true);
+            savedPauseButtonObj.SetActive(false);
+            playButtonObj.SetActive(true);
         }
     }
 
     public void CloseMeditation(){
         PauseSound();
-        meditationMenu.SetActive(false);
+        meditationMenuObj.SetActive(false);
     }
 
-    public GameObject findNewIsland;
-
+   
     public void EnableBuying(){
-        findNewIsland.SetActive(true);
-        findNewIsland.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
+        findNewIslandObj.SetActive(true);
+        findNewIslandObj.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
     }
 
     string strMin1;
     string strSec1;
-    public Text fullTime;
-    public GameObject downloading;
+ 
+
 
     void Update(){
         if(count){
@@ -212,21 +228,22 @@ public class MenuClass : MonoBehaviour
                 strSec = "0" + Mathf.RoundToInt(seconds).ToString();
             }
 
-            showLeftTime.text = strMin + ":" + strSec;
-            fullTime.text = strMin1 + ":" + strSec1;
+            showLeftTimeText.text = strMin + ":" + strSec;
+            fullTimeText.text = strMin1 + ":" + strSec1;
 
             if(counting > curTrack.length){
                 count = false;
                 counting = 0;
                 wereStarted = false;
-                savedPauseButton.SetActive(false);
-                playButton.SetActive(true);
-                playMenu.SetActive(false);
-                startMeditation.SetActive(false);
+                savedPauseButtonObj.SetActive(false);
+                playButtonObj.SetActive(true);
+                playMenuObj.SetActive(false);
+                startMeditationObj.SetActive(false);
                 IslandScroll.prevIsland = curIsland;
                 curIsland++;
                 IslandScroll.curIsland++;
                 islandScroll.ChooseIsland();
+                  islandScroll.ActiveIsland();
             }
         }
         if(timer30m >= 0){
@@ -237,16 +254,16 @@ public class MenuClass : MonoBehaviour
                 loading.fillAmount+=Time.deltaTime;
 
             if(loading.fillAmount == 1){
-                prize.SetActive(true);
-                boostButton.SetActive(false);
+                prizeObj.SetActive(true);
+                boostButtonObj.SetActive(false);
                 timer30m = -1;
                 loading.fillAmount = 0;
             }
         }
 
         if(timer30m > 1800){
-            prize.SetActive(true);
-            boostButton.SetActive(false);
+            prizeObj.SetActive(true);
+            boostButtonObj.SetActive(false);
             timer30m = -1;
         }
     }
