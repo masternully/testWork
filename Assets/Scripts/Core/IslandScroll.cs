@@ -9,7 +9,10 @@ public class IslandScroll : MonoBehaviour
 
     public GameObject[] islandsObj;
     public GameObject[] playersObj;
+    public GameObject[] CitezenObj;
     public GameObject cam;
+    public GameObject IslandControlObj,CitizenObj;
+    public GameObject LevelInfoObj,FindNewIslandObj;
     public static int curIsland;
     public static bool tap, swipeUp, swipeDown;
     public static bool moveToIsland;
@@ -154,12 +157,20 @@ public int ActiveIslandNumber=1;
         moveToIsland = true;
         islandsObj[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,166f/255f);
         
+        CitezenObj[prevIsland].SetActive(false);
+        CitezenObj[curIsland].SetActive(true);
+   
         islandsObj[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,255f/255f);
+       
     }
 public void ActiveIsland()
 {
     islandsObj[curIsland].SetActive(true);
     ActiveIslandNumber++;
+    LevelInfoObj.SetActive(false);
+    FindNewIslandObj.SetActive(false);
+    IslandControlObj.SetActive(true);
+    CitizenObj.SetActive(false);
 }
     void Reset(){
         startTouch = swipeDelta = Vector2.zero;

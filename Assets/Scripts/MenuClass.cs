@@ -31,6 +31,7 @@ public class MenuClass : MonoBehaviour
     public Text[] islandInfo;  
     public Text showLeftTimeText;   
     public Text fullTimeText;
+    
     public GameObject islandInfoObj;
     public GameObject takeWithBoostObj;  
     public GameObject prizeObj;
@@ -46,6 +47,7 @@ public class MenuClass : MonoBehaviour
     public GameObject courseMenuObj;
     public GameObject playMenuObj;
     public Image loading;
+    int hour,minute,hourbuf;
    
   
  
@@ -54,8 +56,22 @@ public class MenuClass : MonoBehaviour
   
     void Start(){
         availableIslands = new bool[islandCosts.Length];
-    }
+        hour=PlayerPrefs.GetInt("Hours");
+        hourbuf=System.DateTime.Now.Hour-hour;
+ coins+=10*hourbuf*6;
+        StartCoroutine(AddCoins());
 
+    }
+  private IEnumerator AddCoins()
+    {
+       yield return new WaitForSeconds(600f);
+       coins+=10*islandScroll.ActiveIslandNumber;
+       PlayerPrefs.SetInt("Hours",System.DateTime.Now.Hour);
+       PlayerPrefs.SetInt("Minute",System.DateTime.Now.Minute);
+       
+       StartCoroutine(AddCoins()); 
+       
+    }
     public void BuyNewIsland(Button but){
         curIsland = IslandScroll.curIsland;
         coins -= islandCosts[curIsland];
@@ -200,10 +216,13 @@ public class MenuClass : MonoBehaviour
 
    
     public void EnableBuying(){
+        ///findNewIslandObj.SetActive(true);
+        //findNewIslandObj.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
+    }
+public void EnableIslandActive(){
         findNewIslandObj.SetActive(true);
         findNewIslandObj.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
     }
-
     string strMin1;
     string strSec1;
  
@@ -243,7 +262,7 @@ public class MenuClass : MonoBehaviour
                 curIsland++;
                 IslandScroll.curIsland++;
                 islandScroll.ChooseIsland();
-                  islandScroll.ActiveIsland();
+                islandScroll.ActiveIsland();
             }
         }
         if(timer30m >= 0){
