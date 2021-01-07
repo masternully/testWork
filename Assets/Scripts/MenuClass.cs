@@ -58,13 +58,13 @@ public class MenuClass : MonoBehaviour
         availableIslands = new bool[islandCosts.Length];
         hour=PlayerPrefs.GetInt("Hours");
         hourbuf=System.DateTime.Now.Hour-hour;
- coins+=10*hourbuf*6;
+        coins+=10*hourbuf*60;
         StartCoroutine(AddCoins());
 
     }
   private IEnumerator AddCoins()
     {
-       yield return new WaitForSeconds(600f);
+       yield return new WaitForSeconds(60f);
        coins+=10*islandScroll.ActiveIslandNumber;
        PlayerPrefs.SetInt("Hours",System.DateTime.Now.Hour);
        PlayerPrefs.SetInt("Minute",System.DateTime.Now.Minute);
