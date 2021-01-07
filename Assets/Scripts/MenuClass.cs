@@ -47,7 +47,7 @@ public class MenuClass : MonoBehaviour
     public GameObject courseMenuObj;
     public GameObject playMenuObj;
     public Image loading;
-    int hour,minute,hourbuf;
+    int hour,minute,hourbuf,days;
    
   
  
@@ -60,6 +60,13 @@ public class MenuClass : MonoBehaviour
         hourbuf=System.DateTime.Now.Hour-hour;
         coins+=10*hourbuf*60;
         StartCoroutine(AddCoins());
+         
+         days=PlayerPrefs.GetInt("Day");
+         if(days!=System.DateTime.Now.Day)
+         {
+          coins+=10;
+          PlayerPrefs.SetInt("Day",System.DateTime.Now.Day);
+         }
 
     }
   private IEnumerator AddCoins()
