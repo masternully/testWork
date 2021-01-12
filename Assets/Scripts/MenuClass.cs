@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,9 @@ public class AudioClass {
 
 public class MenuClass : MonoBehaviour
 {
+    DateTime currentDate;
+    DateTime oldDate;
+
     public IslandScroll islandScroll;
     public AudioClass[] audioClasses;
     public string[] islandNames;
@@ -19,27 +23,73 @@ public class MenuClass : MonoBehaviour
     public int[] islandCosts;
 
     public int coins;
+    public int diamonds;
+    public bool passiveMoney;
 
     public bool[] availableIslands;
     public Text[] islandInfo;
     public GameObject islandInfoObj;
-    private int curIsland;
+    public static int curIsland;
     private float timer30m = -1;
     public Image loading;
+    public GameObject toIslandButton;
 
     void Start(){
         availableIslands = new bool[islandCosts.Length];
+        availableIslands[0] = true;
+        curIsland = PlayerPrefs.GetInt("curIsland");
+        if(curIsland == 0){
+            BackToScroll();
+        }
+        //PlayerPrefs.SetInt("coins", 10000);
+        //PlayerPrefs.SetInt("diamonds", 10000);
+        if(PlayerPrefs.GetInt("coins") == 0 && PlayerPrefs.GetInt("diamonds") == 0){
+            coins = 2000;
+            diamonds = 300;
+        }else{
+            coins = PlayerPrefs.GetInt("coins");
+            diamonds = PlayerPrefs.GetInt("diamonds");
+        }
+        currentDate = System.DateTime.Now;
+ 
+         //Grab the old time from the player prefs as a long
+        long temp = Convert.ToInt64(PlayerPrefs.GetString("sysString"));
+ 
+         //Convert the old time from binary to a DataTime variable
+        DateTime oldDate = DateTime.FromBinary(temp);
+ 
+         //Use the Subtract method and store the result as a timespan variable
+        TimeSpan difference = currentDate.Subtract(oldDate);
+        Debug.Log(difference.TotalSeconds);
+        int min = (int) difference.TotalSeconds / 60;
+        for(int i = 0; i < curIsland; i++){
+            for(int z = 0; z < min; z++){
+                coins += 1000;
+            }
+        }
+        Debug.Log(curIsland);
+        Debug.Log(min);
+        RefreshUI();
     }
 
     public void BuyNewIsland(Button but){
-        curIsland = IslandScroll.curIsland;
+        if(coins >= islandCosts[curIsland]){
+        backToScroll.SetActive(false);
+        curIsland++;
+        PlayerPrefs.SetInt("curIsland", curIsland);
         coins -= islandCosts[curIsland];
+        RefreshUI();
         but.gameObject.transform.parent.gameObject.SetActive(false);
         islandInfoObj.SetActive(true);
         boostButton.SetActive(true);
-        islandInfo[0].text = islandNames[curIsland];
-        islandInfo[1].text = "ЖИТЕЛЕЙ: " + islandPeopleAmount[curIsland];
         timer30m = 0;
+        }
+    }
+
+    public void ChangeIslandInfo(){
+        islandInfo[0].text = islandNames[IslandScroll.curIsland];
+        islandInfo[1].text = "ЖИТЕЛЕЙ: " + islandPeopleAmount[IslandScroll.curIsland];
+        findNewIsland.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
     }
 
 
@@ -58,8 +108,10 @@ public class MenuClass : MonoBehaviour
     public GameObject acceptPrize;
     public GameObject startMeditation;
     public void TakeBoost(){
-        availableIslands[IslandScroll.curIsland] = true;
         takeWithBoost.SetActive(false);
+        boosted = true;
+        diamonds-=150;
+        RefreshUI();
         // Минус затраченные очки
     }
 
@@ -70,11 +122,12 @@ public class MenuClass : MonoBehaviour
 
     public void GetPrize(){
         acceptPrize.SetActive(false);
-        boostButton.SetActive(true);
+        boostButton.SetActive(false);
         prize.SetActive(false);
         islandInfoObj.SetActive(false);
         startMeditation.SetActive(true);
         coins+=100;
+        RefreshUI();
         // И прописываю значения нашим валютам
     }
 
@@ -181,17 +234,36 @@ public class MenuClass : MonoBehaviour
         meditationMenu.SetActive(false);
     }
 
+    public bool scrolling;
+
+    public void BackToScroll(){
+        scrolling = true;
+        findNewIsland.SetActive(false);
+        toIslandButton.SetActive(true);
+        backToScroll.SetActive(false);
+        islandScroll.islands[IslandScroll.curIsland].transform.GetChild(1).gameObject.SetActive(false);
+    }
+
     public GameObject findNewIsland;
+    public GameObject backToScroll;
 
     public void EnableBuying(){
-        findNewIsland.SetActive(true);
-        findNewIsland.transform.GetComponentInChildren<Text>().text = islandCosts[IslandScroll.curIsland] + "";
+        scrolling = false;
+        islandScroll.islands[IslandScroll.curIsland].transform.GetChild(1).gameObject.SetActive(true);
+        toIslandButton.SetActive(false);
+        islandInfoObj.SetActive(true);
+        backToScroll.SetActive(true);
+
+        if(availableIslands[IslandScroll.curIsland] == false){
+            findNewIsland.SetActive(true);
+        }
     }
 
     string strMin1;
     string strSec1;
     public Text fullTime;
     public GameObject downloading;
+    public bool boosted;
 
     void Update(){
         if(count){
@@ -215,28 +287,31 @@ public class MenuClass : MonoBehaviour
             showLeftTime.text = strMin + ":" + strSec;
             fullTime.text = strMin1 + ":" + strSec1;
 
-            if(counting > curTrack.length){
+            if(counting > 5){ //curTrack.length
                 count = false;
                 counting = 0;
+                scrolling = true;
                 wereStarted = false;
                 savedPauseButton.SetActive(false);
                 playButton.SetActive(true);
                 playMenu.SetActive(false);
                 startMeditation.SetActive(false);
+                availableIslands[curIsland] = true;
                 IslandScroll.prevIsland = curIsland;
-                curIsland++;
                 IslandScroll.curIsland++;
+                curIsland++;
                 islandScroll.ChooseIsland();
             }
         }
         if(timer30m >= 0){
             timer30m += Time.deltaTime;
-            if(!availableIslands[IslandScroll.curIsland])
+            if(!boosted)
                 loading.fillAmount+=Time.deltaTime/1800;
             else
                 loading.fillAmount+=Time.deltaTime;
 
             if(loading.fillAmount == 1){
+                boosted = false;
                 prize.SetActive(true);
                 boostButton.SetActive(false);
                 timer30m = -1;
@@ -249,5 +324,33 @@ public class MenuClass : MonoBehaviour
             boostButton.SetActive(false);
             timer30m = -1;
         }
+
+            passiveMoneyTimer += Time.deltaTime;
+            if(passiveMoneyTimer > 60){
+                passiveMoneyTimer = 0;
+                for(int i = 0; i < curIsland; i++){
+                    coins += 1000;
+                }
+                RefreshUI();
+            }
+    }
+
+    public void RefreshUI(){
+        coinsText.text = coins + "";
+        PlayerPrefs.SetInt("coins", coins);
+        diamondText.text = diamonds + "";
+        PlayerPrefs.SetInt("diamonds", diamonds);
+    }
+
+    public float passiveMoneyTimer;
+    public Text coinsText;
+    public Text diamondText;
+
+    void OnApplicationQuit()
+    {
+         //Savee the current system time as a string in the player prefs class
+        PlayerPrefs.SetString("sysString", System.DateTime.Now.ToBinary().ToString());
+ 
+        print("Saving this date to prefs: " + System.DateTime.Now);
     }
 }

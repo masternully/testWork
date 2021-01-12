@@ -15,7 +15,7 @@ public class IslandScroll : MonoBehaviour
     private bool isDraging = false;
     private Vector2 startTouch, swipeDelta;
 
-    public static bool moveToIsland;
+    public bool moveToIsland;
     public float moveToIslandTimer;
 
     Vector3 startIslandPos;
@@ -57,7 +57,7 @@ public class IslandScroll : MonoBehaviour
         }
 
         swipeDelta = Vector2.zero;
-        if(isDraging){
+        if(isDraging && menuClass.scrolling){
             if(Input.touches.Length < 0){
                 swipeDelta = Input.touches[0].position - startTouch;
             }else if(Input.GetMouseButton(0)){
@@ -67,6 +67,7 @@ public class IslandScroll : MonoBehaviour
 
         if(!moveToIsland && !started){
             if(swipeDelta.magnitude > 125){
+                menuClass.toIslandButton.SetActive(false);
                 float x = swipeDelta.x;
                 float y = swipeDelta.y;
                 if(Mathf.Abs(x) < Mathf.Abs(y)){
@@ -79,6 +80,8 @@ public class IslandScroll : MonoBehaviour
                     }
                 }
                 Reset();
+            }else{
+                menuClass.toIslandButton.SetActive(true);
             }
         }
     }
@@ -124,7 +127,8 @@ public class IslandScroll : MonoBehaviour
                     Time.deltaTime * speed);
             }else{
                 moveToIsland = false;
-                menuClass.EnableBuying();
+                menuClass.ChangeIslandInfo();
+                menuClass.toIslandButton.SetActive(true);
                 moveTimer = 0;
             }
         }
@@ -133,7 +137,7 @@ public class IslandScroll : MonoBehaviour
     public static int prevIsland;
 
     void SwipeUp(){
-        if(curIsland < islands.Length-1){
+        if(curIsland < islands.Length-1  && MenuClass.curIsland > curIsland){
             prevIsland = curIsland;
             curIsland++;
             ChooseIsland();
@@ -150,6 +154,10 @@ public class IslandScroll : MonoBehaviour
 
     public void ChooseIsland(){
         moveToIsland = true;
+        if(islands[curIsland].activeSelf == false){
+            islands[curIsland].SetActive(true);
+        }
+        islands[prevIsland].transform.GetChild(1).gameObject.SetActive(false);
         islands[prevIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,166f/255f);
         islands[curIsland].GetComponentInChildren<SpriteRenderer>().color = new Color(255f/255f,255f/255f,255f/255f,255f/255f);
     }
